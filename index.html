@@ -2,86 +2,39 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Friedenstaube Animation</title>
+<title>Friedenstaube & Projektmarker</title>
 <style>
-  body { 
-    font-family: sans-serif; 
-    text-align: center; 
-    margin: 0; 
-    padding: 0;
-  }
+  body { font-family: sans-serif; text-align: center; margin:0; padding:0;}
+  h1, p { margin: 10px 0; }
+  #mapContainer { position: relative; display: inline-block; cursor: crosshair; }
+  #worldMap { width: 90vw; max-width: 1000px; display: block; }
 
-  h1, p {
-    margin: 10px 0;
-  }
+  .dove { position: absolute; font-size: 30px; transform: translate(-50%, -50%); }
+  .wish { position: absolute; transform: translate(-50%, -150%); font-size: 14px; background: rgba(255,255,255,0.7); padding: 2px 4px; border-radius: 4px; }
 
-  #mapContainer { 
-    position: relative; 
-    display: inline-block; 
-    cursor: crosshair; 
-  }
-
-  #worldMap { 
-    width: 90vw; 
-    max-width: 1000px; 
-    display: block; 
-  }
-
-  .dove {
-    position: absolute;
-    font-size: 30px;
-    transform: translate(-50%, -50%);
-  }
-
-  .wish {
-    position: absolute;
-    transform: translate(-50%, -150%);
-    font-size: 14px;
-    background: rgba(255,255,255,0.7);
-    padding: 2px 4px;
-    border-radius: 4px;
-  }
-
-  /* Projektmarker */
   .project-marker {
     position: absolute;
-    width: 20px;
-    height: 20px;
-    background: #FF6347; /* leuchtendes Rot */
-    border-radius: 50%;
-    border: 2px solid white;
-    transform: translate(-50%, -50%);
-    cursor: pointer;
-    animation: pulse 2s infinite;
+    width: 20px; height: 20px;
+    background: #FF6347; border-radius: 50%;
+    border: 2px solid white; transform: translate(-50%, -50%);
+    cursor: pointer; animation: pulse 2s infinite;
     box-shadow: 0 0 6px rgba(0,0,0,0.3);
   }
-
   .project-marker:hover::after {
     content: attr(data-title);
-    position: absolute;
-    top: -30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(255,255,255,0.9);
-    padding: 4px 8px;
-    border-radius: 4px;
-    white-space: nowrap;
-    font-size: 12px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+    position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+    background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 4px;
+    white-space: nowrap; font-size: 12px; box-shadow: 0 0 5px rgba(0,0,0,0.2);
   }
+  @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.2); } 100% { transform: translate(-50%, -50%) scale(1); } }
 
-  /* Pulsier-Animation */
-  @keyframes pulse {
-    0% { transform: translate(-50%, -50%) scale(1); }
-    50% { transform: translate(-50%, -50%) scale(1.2); }
-    100% { transform: translate(-50%, -50%) scale(1); }
-  }
+  #adminOutput { margin-top:10px; font-family: monospace; white-space: pre-wrap; text-align:left; max-width:90vw; }
 </style>
 </head>
 <body>
 
-<h1>Schicke eine Friedenstaube</h1>
-<p>Klicke auf die Weltkarte, um dein Ziel auszuwählen 🌍</p>
+<h1>Friedenstaube & Projektmarker</h1>
+<p>Klicke auf die Weltkarte, um deinen Friedenswunsch zu senden oder als Admin ein Projekt zu markieren</p>
 
 <form id="wishForm">
   <input type="text" id="wishInput" placeholder="Dein Friedenswunsch" required>
@@ -94,16 +47,20 @@
        alt="Weltkarte">
 </div>
 
+<div id="adminOutput"></div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
 const form = document.getElementById('wishForm');
 const mapContainer = document.getElementById('mapContainer');
 const worldMap = document.getElementById('worldMap');
+const adminOutput = document.getElementById('adminOutput');
 
 let targetX = null;
 let targetY = null;
+let projects = [];
 
-// Marker für Nutzerziel
+// Nutzermarker für Wünsche
 let marker = document.createElement('div');
 marker.style.position = 'absolute';
 marker.style.color = 'red';
@@ -112,50 +69,58 @@ marker.textContent = '✚';
 marker.style.display = 'none';
 mapContainer.appendChild(marker);
 
-// Nutzer klickt auf die Karte → Ziel speichern
+// Klick auf Karte
 worldMap.addEventListener('click', (e) => {
   const rect = worldMap.getBoundingClientRect();
-  targetX = e.clientX - rect.left;
-  targetY = e.clientY - rect.top;
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
 
+  // Prüfen, ob Admin-Modus: Shift gedrückt → Projekt hinzufügen
+  if(e.shiftKey) {
+    const name = prompt("Projektname:");
+    const year = prompt("Jahr:");
+    if(name && year){
+      addProjectMarker(x, y, name, year);
+      updateAdminOutput();
+    }
+    return; // kein Wunsch setzen
+  }
+
+  // Normaler Nutzer klick → Ziel speichern
+  targetX = x;
+  targetY = y;
   marker.style.left = targetX + 'px';
   marker.style.top = targetY + 'px';
   marker.style.display = 'block';
 });
 
-// Projekte mit Marker
-const projects = [
-  {year: 2025, name: "Casa Social Cultural y Memoria", x: 320, y: 400},
-  {year: 2024, name: "Kiran Kamal Prasad / Projekt Jeevika", x: 750, y: 350},
-  {year: 2023, name: "Reaching Out Romania", x: 600, y: 200},
-  {year: 2022, name: "Youth Peace Ambassadors Network", x: 500, y: 180},
-  {year: 2021, name: "Secondary School in Nyashishi / Pippi House for Girls", x: 580, y: 450},
-  {year: 2020, name: "Dr. Massimo Del Bene", x: 550, y: 220},
-  {year: 2019, name: "Pfarrer József Lankó", x: 570, y: 190},
-  {year: 2018, name: "Syrian Center for Media and Freedom of Expression / Yara Bader", x: 680, y: 200},
-  {year: 2017, name: "Pater Shay Cullen / PREDA", x: 900, y: 380},
-  {year: 2016, name: "Parents Circle Families Forum", x: 630, y: 210},
-  {year: 2015, name: "Thérèse Mema Mapenzi", x: 450, y: 400},
-  {year: 2014, name: "Lory Obal / ICON", x: 900, y: 380},
-  {year: 2013, name: "Padre Paulo Joanil da Silva / CPT", x: 300, y: 430},
-  {year: 2012, name: "Bertha Cáceres Flores / COPINH", x: 320, y: 370},
-];
-
-projects.forEach(proj => {
+// Funktion: Projektmarker setzen
+function addProjectMarker(x, y, name, year){
   const projDiv = document.createElement('div');
   projDiv.className = 'project-marker';
-  projDiv.style.left = proj.x + 'px';
-  projDiv.style.top = proj.y + 'px';
-  projDiv.setAttribute('data-title', `${proj.year}: ${proj.name}`);
+  projDiv.style.left = x + 'px';
+  projDiv.style.top = y + 'px';
+  projDiv.setAttribute('data-title', `${year}: ${name}`);
   mapContainer.appendChild(projDiv);
-});
+  projects.push({x, y, name, year});
+}
+
+// Admin-Code ausgeben (für GitHub)
+function updateAdminOutput(){
+  let code = "const projects = [\n";
+  projects.forEach(p => {
+    code += `  {year: ${p.year}, name: "${p.name}", x: ${p.x}, y: ${p.y}},\n`;
+  });
+  code += "];";
+  adminOutput.textContent = code;
+}
 
 // Formular abgeschickt → Taube fliegt los
 form.addEventListener('submit', function(e){
   e.preventDefault();
   const wish = document.getElementById('wishInput').value;
 
-  if (targetX === null || targetY === null) {
+  if(targetX === null || targetY === null) {
     alert("Bitte zuerst auf die Weltkarte klicken!");
     return;
   }
