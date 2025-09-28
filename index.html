@@ -115,6 +115,23 @@ function updateAdminOutput(){
   adminOutput.textContent = code;
 }
 
+const projects = [
+  {year: 2025, name: "Casa Social Cultural y Memoria", x: 247, y: 340},
+  {year: 2024, name: "Kiran Kamal Prasad / Projekt Jeevika – Indien (Karnataka)", x: 700, y: 310},
+  {year: 2023, name: "Reaching Out Romania – Rumänien", x: 543, y: 203.5},
+  {year: 2022, name: "Youth Peace Ambassadors Network – international / Europarat (Europa)", x: 490, y: 188.5},
+  {year: 2021, name: "Secondary School in Nyashishi / Pippi House for Girls – Tansania", x: 582, y: 361.5},
+  {year: 2020, name: "Dr. Massimo Del Bene ", x: 514, y: 220.5},
+  {year: 2019, name: "Pfarrer József Lankó", x: 524, y: 201.5},
+  {year: 2018, name: "Syrian Center for Media and Freedom of Expression / Yara Bader", x: 582, y: 241.5},
+  {year: 2017, name: "Pater Shay Cullen / PREDA", x: 841, y: 305.5},
+  {year: 2016, name: "Parents Circle Families Forum", x: 576, y: 254.5},
+  {year: 2015, name: "Thérèse Mema Mapenzi ", x: 548, y: 358.5},
+  {year: 2014, name: "Lory Obal / ICON", x: 850, y: 329.5},
+  {year: 2013, name: "Padre Paulo Joanil da Silva / CPT", x: 320, y: 378.5},
+  {year: 2012, name: "Bertha Cáceres Flores / COPINH ", x: 222, y: 305.5},
+];
+
 // Formular abgeschickt → Taube fliegt los
 form.addEventListener('submit', function(e){
   e.preventDefault();
