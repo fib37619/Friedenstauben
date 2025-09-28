@@ -63,64 +63,78 @@ marker.textContent = '✚';
 marker.style.display = 'none';
 mapContainer.appendChild(marker);
 
-// Vordefinierte Projekte
+// Vordefinierte Projekte (Koordinaten in Prozent)
 const projects = [
-  {year: 2025, name: "Casa Social Cultural y Memoria", x: 247, y: 340},
-  {year: 2024, name: "Kiran Kamal Prasad / Projekt Jeevika", x: 700, y: 310},
-  {year: 2023, name: "Reaching Out Romania – Rumänien", x: 543, y: 203.5},
-  {year: 2022, name: "Youth Peace Ambassadors Network – international / Europarat (Europa)", x: 490, y: 188.5},
-  {year: 2021, name: "Secondary School in Nyashishi / Pippi House for Girls", x: 582, y: 361.5},
-  {year: 2020, name: "Dr. Massimo Del Bene ", x: 514, y: 220.5},
-  {year: 2019, name: "Pfarrer József Lankó", x: 524, y: 201.5},
-  {year: 2018, name: "Syrian Center for Media and Freedom of Expression / Yara Bader", x: 582, y: 241.5},
-  {year: 2017, name: "Pater Shay Cullen / PREDA", x: 841, y: 305.5},
-  {year: 2016, name: "Parents Circle Families Forum", x: 576, y: 254.5},
-  {year: 2015, name: "Thérèse Mema Mapenzi ", x: 548, y: 358.5},
-  {year: 2014, name: "Lory Obal / ICON", x: 850, y: 329.5},
-  {year: 2013, name: "Padre Paulo Joanil da Silva / CPT", x: 320, y: 378.5},
-  {year: 2012, name: "Bertha Cáceres Flores / COPINH ", x: 222, y: 305.5},
+  {year: 2025, name: "Casa Social Cultural y Memoria", xPerc: 24.7, yPerc: 34},
+  {year: 2024, name: "Kiran Kamal Prasad / Projekt Jeevika", xPerc: 70, yPerc: 31},
+  {year: 2023, name: "Reaching Out Romania – Rumänien", xPerc: 54.3, yPerc: 20.35},
+  {year: 2022, name: "Youth Peace Ambassadors Network – international / Europarat (Europa)", xPerc: 49, yPerc: 18.85},
+  {year: 2021, name: "Secondary School in Nyashishi / Pippi House for Girls", xPerc: 58.2, yPerc: 36.15},
+  {year: 2020, name: "Dr. Massimo Del Bene", xPerc: 51.4, yPerc: 22.05},
+  {year: 2019, name: "Pfarrer József Lankó", xPerc: 52.4, yPerc: 20.15},
+  {year: 2018, name: "Syrian Center for Media and Freedom of Expression / Yara Bader", xPerc: 58.2, yPerc: 24.15},
+  {year: 2017, name: "Pater Shay Cullen / PREDA", xPerc: 84.1, yPerc: 30.55},
+  {year: 2016, name: "Parents Circle Families Forum", xPerc: 57.6, yPerc: 25.45},
+  {year: 2015, name: "Thérèse Mema Mapenzi", xPerc: 54.8, yPerc: 35.85},
+  {year: 2014, name: "Lory Obal / ICON", xPerc: 85, yPerc: 32.95},
+  {year: 2013, name: "Padre Paulo Joanil da Silva / CPT", xPerc: 32, yPerc: 37.85},
+  {year: 2012, name: "Bertha Cáceres Flores / COPINH", xPerc: 22.2, yPerc: 30.55},
 ];
 
-// Marker für die vordefinierten Projekte erzeugen (ohne ins Array pushen)
-projects.forEach(p => {
+// Funktion: Marker positionieren
+function createMarker(p){
   const projDiv = document.createElement('div');
   projDiv.className = 'project-marker';
-  projDiv.style.left = p.x + 'px';
-  projDiv.style.top = p.y + 'px';
+  const rect = worldMap.getBoundingClientRect();
+  projDiv.style.left = (p.xPerc/100 * rect.width) + 'px';
+  projDiv.style.top = (p.yPerc/100 * rect.height) + 'px';
   projDiv.setAttribute('data-title', `${p.year}: ${p.name}`);
   mapContainer.appendChild(projDiv);
-});
+}
 
-// Funktion für neue Marker (Shift-Klick)
-function addProjectMarker(x, y, name, year){
+// Marker erzeugen
+projects.forEach(p => createMarker(p));
+
+// Marker-Positionen bei Resize aktualisieren
+function updateMarkers(){
+  const rect = worldMap.getBoundingClientRect();
+  document.querySelectorAll('.project-marker').forEach((el, i) => {
+    const p = projects[i];
+    el.style.left = (p.xPerc/100 * rect.width) + 'px';
+    el.style.top = (p.yPerc/100 * rect.height) + 'px';
+  });
+}
+window.addEventListener('resize', updateMarkers);
+
+// Neue Projekte via Shift-Klick
+function addProjectMarker(xPerc, yPerc, name, year){
   const projDiv = document.createElement('div');
   projDiv.className = 'project-marker';
-  projDiv.style.left = x + 'px';
-  projDiv.style.top = y + 'px';
+  const rect = worldMap.getBoundingClientRect();
+  projDiv.style.left = (xPerc/100 * rect.width) + 'px';
+  projDiv.style.top = (yPerc/100 * rect.height) + 'px';
   projDiv.setAttribute('data-title', `${year}: ${name}`);
   mapContainer.appendChild(projDiv);
-  projects.push({x, y, name, year});
+  projects.push({xPerc, yPerc, name, year});
 }
 
 // Klick auf Karte
 worldMap.addEventListener('click', (e) => {
   const rect = worldMap.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
+  const xPerc = (e.clientX - rect.left)/rect.width*100;
+  const yPerc = (e.clientY - rect.top)/rect.height*100;
 
-  // Shift-Klick → neues Projekt
-  if(e.shiftKey) {
+  if(e.shiftKey){
     const name = prompt("Projektname:");
     const year = prompt("Jahr:");
     if(name && year){
-      addProjectMarker(x, y, name, year);
+      addProjectMarker(xPerc, yPerc, name, year);
     }
     return;
   }
 
-  // Normaler Nutzer klick → Ziel speichern
-  targetX = x;
-  targetY = y;
+  targetX = e.clientX - rect.left;
+  targetY = e.clientY - rect.top;
   marker.style.left = targetX + 'px';
   marker.style.top = targetY + 'px';
   marker.style.display = 'block';
@@ -164,3 +178,4 @@ form.addEventListener('submit', function(e){
 
 </body>
 </html>
+
