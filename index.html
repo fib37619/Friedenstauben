@@ -27,8 +27,6 @@
     white-space: nowrap; font-size: 12px; box-shadow: 0 0 5px rgba(0,0,0,0.2);
   }
   @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(1); } 50% { transform: translate(-50%, -50%) scale(1.2); } 100% { transform: translate(-50%, -50%) scale(1); } }
-
-  #adminOutput { margin-top:10px; font-family: monospace; white-space: pre-wrap; text-align:left; max-width:90vw; }
 </style>
 </head>
 <body>
@@ -47,14 +45,11 @@
        alt="Weltkarte">
 </div>
 
-<div id="adminOutput"></div>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
 const form = document.getElementById('wishForm');
 const mapContainer = document.getElementById('mapContainer');
 const worldMap = document.getElementById('worldMap');
-const adminOutput = document.getElementById('adminOutput');
 
 let targetX = null;
 let targetY = null;
@@ -67,18 +62,6 @@ marker.style.fontSize = '20px';
 marker.textContent = '✚';
 marker.style.display = 'none';
 mapContainer.appendChild(marker);
-
-// Funktion: Projektmarker setzen
-function addProjectMarker(x, y, name, year){
-  const projDiv = document.createElement('div');
-  projDiv.className = 'project-marker';
-  projDiv.style.left = x + 'px';
-  projDiv.style.top = y + 'px';
-  projDiv.setAttribute('data-title', `${year}: ${name}`);
-  mapContainer.appendChild(projDiv);
-  projects.push({x, y, name, year});
-}
-
 
 // Vordefinierte Projekte
 const projects = [
@@ -98,9 +81,26 @@ const projects = [
   {year: 2012, name: "Bertha Cáceres Flores / COPINH ", x: 222, y: 305.5},
 ];
 
-// Marker für alle vordefinierten Projekte erzeugen
-projects.forEach(p => addProjectMarker(p.x, p.y, p.name, p.year));
-updateAdminOutput();
+// Marker für die vordefinierten Projekte erzeugen (ohne ins Array pushen)
+projects.forEach(p => {
+  const projDiv = document.createElement('div');
+  projDiv.className = 'project-marker';
+  projDiv.style.left = p.x + 'px';
+  projDiv.style.top = p.y + 'px';
+  projDiv.setAttribute('data-title', `${p.year}: ${p.name}`);
+  mapContainer.appendChild(projDiv);
+});
+
+// Funktion für neue Marker (Shift-Klick)
+function addProjectMarker(x, y, name, year){
+  const projDiv = document.createElement('div');
+  projDiv.className = 'project-marker';
+  projDiv.style.left = x + 'px';
+  projDiv.style.top = y + 'px';
+  projDiv.setAttribute('data-title', `${year}: ${name}`);
+  mapContainer.appendChild(projDiv);
+  projects.push({x, y, name, year});
+}
 
 // Klick auf Karte
 worldMap.addEventListener('click', (e) => {
@@ -108,15 +108,14 @@ worldMap.addEventListener('click', (e) => {
   const x = e.clientX - rect.left;
   const y = e.clientY - rect.top;
 
-  // Prüfen, ob Admin-Modus: Shift gedrückt → Projekt hinzufügen
+  // Shift-Klick → neues Projekt
   if(e.shiftKey) {
     const name = prompt("Projektname:");
     const year = prompt("Jahr:");
     if(name && year){
       addProjectMarker(x, y, name, year);
-      updateAdminOutput();
     }
-    return; // kein Wunsch setzen
+    return;
   }
 
   // Normaler Nutzer klick → Ziel speichern
