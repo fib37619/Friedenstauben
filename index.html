@@ -4,9 +4,9 @@
 <meta charset="UTF-8">
 <title>Friedenstaube Animation</title>
 <style>
-  body { font-family: sans-serif; text-align: center; }
+  body { font-family: sans-serif; text-align: center; margin:0; padding:0;}
   #mapContainer { position: relative; display: inline-block; cursor: crosshair; }
-  #worldMap { width: 800px; display: block; }
+  #worldMap { width: 90vw; max-width: 1000px; display: block; }
   .dove {
     position: absolute;
     font-size: 30px;
@@ -34,12 +34,74 @@
 
 <div id="mapContainer">
   <img id="worldMap" 
-       src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/800px-World_map_-_low_resolution.svg.png" 
+       src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/1000px-World_map_-_low_resolution.svg.png" 
        alt="Weltkarte">
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="script.js"></script>
+<script>
+const form = document.getElementById('wishForm');
+const mapContainer = document.getElementById('mapContainer');
+const worldMap = document.getElementById('worldMap');
+
+let targetX = null;
+let targetY = null;
+
+// Marker für Ziel
+let marker = document.createElement('div');
+marker.style.position = 'absolute';
+marker.style.color = 'red';
+marker.style.fontSize = '20px';
+marker.textContent = '✚';
+marker.style.display = 'none';
+mapContainer.appendChild(marker);
+
+// Nutzer klickt auf die Karte → Ziel speichern
+worldMap.addEventListener('click', (e) => {
+  const rect = worldMap.getBoundingClientRect();
+  targetX = e.clientX - rect.left;
+  targetY = e.clientY - rect.top;
+
+  marker.style.left = targetX + 'px';
+  marker.style.top = targetY + 'px';
+  marker.style.display = 'block';
+});
+
+// Formular abgeschickt → Taube fliegt los
+form.addEventListener('submit', function(e){
+  e.preventDefault();
+  const wish = document.getElementById('wishInput').value;
+
+  if (targetX === null || targetY === null) {
+    alert("Bitte zuerst auf die Weltkarte klicken!");
+    return;
+  }
+
+  const dove = document.createElement('div');
+  dove.className = 'dove';
+  dove.textContent = '🕊️';
+  dove.style.left = '50%';
+  dove.style.top = '90%';
+  mapContainer.appendChild(dove);
+
+  gsap.to(dove, {
+    duration: 3,
+    left: targetX + 'px',
+    top: targetY + 'px',
+    ease: "power1.inOut",
+    onComplete: () => {
+      const wishDiv = document.createElement('div');
+      wishDiv.className = 'wish';
+      wishDiv.style.left = targetX + 'px';
+      wishDiv.style.top = targetY + 'px';
+      wishDiv.textContent = wish;
+      mapContainer.appendChild(wishDiv);
+    }
+  });
+
+  form.reset();
+});
+</script>
 
 </body>
 </html>
