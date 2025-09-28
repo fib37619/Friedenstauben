@@ -79,15 +79,6 @@ function addProjectMarker(x, y, name, year){
   projects.push({x, y, name, year});
 }
 
-// Admin-Code ausgeben (für GitHub)
-function updateAdminOutput(){
-  let code = "const projects = [\n";
-  projects.forEach(p => {
-    code += `  {year: ${p.year}, name: "${p.name}", x: ${p.x}, y: ${p.y}},\n`;
-  });
-  code += "];";
-  adminOutput.textContent = code;
-}
 
 // Vordefinierte Projekte
 const projects = [
