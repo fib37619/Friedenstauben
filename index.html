@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Friedenstaube Animation</title>
+<style>
+  body { font-family: sans-serif; text-align: center; }
+  #mapContainer { position: relative; display: inline-block; cursor: crosshair; }
+  #worldMap { width: 800px; display: block; }
+  .dove {
+    position: absolute;
+    font-size: 30px;
+    transform: translate(-50%, -50%);
+  }
+  .wish {
+    position: absolute;
+    transform: translate(-50%, -150%);
+    font-size: 14px;
+    background: rgba(255,255,255,0.7);
+    padding: 2px 4px;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Schicke eine Friedenstaube</h1>
+<p>Klicke auf die Weltkarte, um dein Ziel auszuwählen 🌍</p>
+
+<form id="wishForm">
+  <input type="text" id="wishInput" placeholder="Dein Friedenswunsch" required>
+  <button type="submit">Taube senden</button>
+</form>
+
+<div id="mapContainer">
+  <img id="worldMap" 
+       src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/World_map_-_low_resolution.svg/800px-World_map_-_low_resolution.svg.png" 
+       alt="Weltkarte">
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="script.js"></script>
+
+</body>
+</html>
