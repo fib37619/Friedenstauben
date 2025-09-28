@@ -58,7 +58,6 @@ const adminOutput = document.getElementById('adminOutput');
 
 let targetX = null;
 let targetY = null;
-let projects = [];
 
 // Nutzermarker für Wünsche
 let marker = document.createElement('div');
@@ -68,6 +67,49 @@ marker.style.fontSize = '20px';
 marker.textContent = '✚';
 marker.style.display = 'none';
 mapContainer.appendChild(marker);
+
+// Funktion: Projektmarker setzen
+function addProjectMarker(x, y, name, year){
+  const projDiv = document.createElement('div');
+  projDiv.className = 'project-marker';
+  projDiv.style.left = x + 'px';
+  projDiv.style.top = y + 'px';
+  projDiv.setAttribute('data-title', `${year}: ${name}`);
+  mapContainer.appendChild(projDiv);
+  projects.push({x, y, name, year});
+}
+
+// Admin-Code ausgeben (für GitHub)
+function updateAdminOutput(){
+  let code = "const projects = [\n";
+  projects.forEach(p => {
+    code += `  {year: ${p.year}, name: "${p.name}", x: ${p.x}, y: ${p.y}},\n`;
+  });
+  code += "];";
+  adminOutput.textContent = code;
+}
+
+// Vordefinierte Projekte
+const projects = [
+  {year: 2025, name: "Casa Social Cultural y Memoria", x: 247, y: 340},
+  {year: 2024, name: "Kiran Kamal Prasad / Projekt Jeevika", x: 700, y: 310},
+  {year: 2023, name: "Reaching Out Romania – Rumänien", x: 543, y: 203.5},
+  {year: 2022, name: "Youth Peace Ambassadors Network – international / Europarat (Europa)", x: 490, y: 188.5},
+  {year: 2021, name: "Secondary School in Nyashishi / Pippi House for Girls", x: 582, y: 361.5},
+  {year: 2020, name: "Dr. Massimo Del Bene ", x: 514, y: 220.5},
+  {year: 2019, name: "Pfarrer József Lankó", x: 524, y: 201.5},
+  {year: 2018, name: "Syrian Center for Media and Freedom of Expression / Yara Bader", x: 582, y: 241.5},
+  {year: 2017, name: "Pater Shay Cullen / PREDA", x: 841, y: 305.5},
+  {year: 2016, name: "Parents Circle Families Forum", x: 576, y: 254.5},
+  {year: 2015, name: "Thérèse Mema Mapenzi ", x: 548, y: 358.5},
+  {year: 2014, name: "Lory Obal / ICON", x: 850, y: 329.5},
+  {year: 2013, name: "Padre Paulo Joanil da Silva / CPT", x: 320, y: 378.5},
+  {year: 2012, name: "Bertha Cáceres Flores / COPINH ", x: 222, y: 305.5},
+];
+
+// Marker für alle vordefinierten Projekte erzeugen
+projects.forEach(p => addProjectMarker(p.x, p.y, p.name, p.year));
+updateAdminOutput();
 
 // Klick auf Karte
 worldMap.addEventListener('click', (e) => {
@@ -93,44 +135,6 @@ worldMap.addEventListener('click', (e) => {
   marker.style.top = targetY + 'px';
   marker.style.display = 'block';
 });
-
-// Funktion: Projektmarker setzen
-function addProjectMarker(x, y, name, year){
-  const projDiv = document.createElement('div');
-  projDiv.className = 'project-marker';
-  projDiv.style.left = x + 'px';
-  projDiv.style.top = y + 'px';
-  projDiv.setAttribute('data-title', `${year}: ${name}`);
-  mapContainer.appendChild(projDiv);
-  projects.push({x, y, name, year});
-}
-
-// Admin-Code ausgeben (für GitHub)
-function updateAdminOutput(){
-  let code = "const projects = [\n";
-  projects.forEach(p => {
-    code += `  {year: ${p.year}, name: "${p.name}", x: ${p.x}, y: ${p.y}},\n`;
-  });
-  code += "];";
-  adminOutput.textContent = code;
-}
-
-const projects = [
-  {year: 2025, name: "Casa Social Cultural y Memoria", x: 247, y: 340},
-  {year: 2024, name: "Kiran Kamal Prasad / Projekt Jeevika", x: 700, y: 310},
-  {year: 2023, name: "Reaching Out Romania – Rumänien", x: 543, y: 203.5},
-  {year: 2022, name: "Youth Peace Ambassadors Network – international / Europarat (Europa)", x: 490, y: 188.5},
-  {year: 2021, name: "Secondary School in Nyashishi / Pippi House for Girls", x: 582, y: 361.5},
-  {year: 2020, name: "Dr. Massimo Del Bene ", x: 514, y: 220.5},
-  {year: 2019, name: "Pfarrer József Lankó", x: 524, y: 201.5},
-  {year: 2018, name: "Syrian Center for Media and Freedom of Expression / Yara Bader", x: 582, y: 241.5},
-  {year: 2017, name: "Pater Shay Cullen / PREDA", x: 841, y: 305.5},
-  {year: 2016, name: "Parents Circle Families Forum", x: 576, y: 254.5},
-  {year: 2015, name: "Thérèse Mema Mapenzi ", x: 548, y: 358.5},
-  {year: 2014, name: "Lory Obal / ICON", x: 850, y: 329.5},
-  {year: 2013, name: "Padre Paulo Joanil da Silva / CPT", x: 320, y: 378.5},
-  {year: 2012, name: "Bertha Cáceres Flores / COPINH ", x: 222, y: 305.5},
-];
 
 // Formular abgeschickt → Taube fliegt los
 form.addEventListener('submit', function(e){
